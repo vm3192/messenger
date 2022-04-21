@@ -89,14 +89,15 @@ function App() {
 
 	return (
 		<>
-			{!logged ? (
+			{logged ? (
 				<Login isLogged={entryAction} />
 			) : (
 				<div className="wrapper">
 					<div className="control_panel">
 						<div className="control_panel__top_area">
 							<div className="control_panel__user_logo user_image user_image--accept">
-								<img src={avatar} alt="avatar" />
+								{/* <img src={avatar} alt="avatar" /> */}
+								<img src="/images/human.jpg" alt="avatar" />
 							</div>
 							<label className="control_panel__search">
 								<input
