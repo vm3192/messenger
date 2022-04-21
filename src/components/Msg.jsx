@@ -1,17 +1,34 @@
 const Msg = (props) => {
+	const date = new Date(props.date);
+	const correctHours =
+		String(date.getHours()).length > 1 ? date.getHours() : `0${date.getHours()}`;
+	const correctMinutes =
+		String(date.getMinutes()).length > 1 ? date.getMinutes() : `0${date.getMinutes()}`;
+	const formatDate = `${
+		date.getMonth() + 1
+	}/${date.getDate()}/${date.getFullYear()}, ${correctHours}:${correctMinutes}`;
+
 	return (
-		<div className="message_panel__other_msg">
-			<div className="message_panel__other_image user_image">
-				<img src="/images/human.jpg" alt="avatar" />
-			</div>
-			<div className="message_panel__msg_content">
-				<div className="message_panel__msg_text">
-					Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam consectetur cumque
-					repudiandae, ad excepturi doloribus.
+		<>
+			{props.owner ? (
+				<div className="message_panel__my_msg">
+					<div className="message_panel__msg_content">
+						<div className="message_panel__msg_text">{props.message}</div>
+						<div className="message_panel__msg_date">{formatDate}</div>
+					</div>
 				</div>
-				<div className="message_panel__msg_date">4/22/17, 4:00 AM</div>
-			</div>
-		</div>
+			) : (
+				<div className="message_panel__other_msg">
+					<div className="message_panel__other_image user_image">
+						<img src="/images/human.jpg" alt="avatar" />
+					</div>
+					<div className="message_panel__msg_content">
+						<div className="message_panel__msg_text">{props.message}</div>
+						<div className="message_panel__msg_date">{formatDate}</div>
+					</div>
+				</div>
+			)}
+		</>
 	);
 };
 

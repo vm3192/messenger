@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import './App.scss';
 import ChatItem from './components/ChatItem';
-import Msg from './components/Msg';
+import ChattingArea from './components/ChattingArea';
+import Login from './components/login';
+import { gapi } from 'gapi-script';
+
+const clientId = '21407279081-04mdsfad5bhpti7qe870bf03joqn97sa.apps.googleusercontent.com';
 
 function App() {
 	const axios = require('axios').default;
 	const [data, setData] = useState([]);
 	const [search, setSearch] = useState('');
+	const [newMsgInput, setNewMsgInput] = useState('');
+	const [logged, setLogged] = useState(false);
+	const [avatar, setAvatar] = useState('');
 
 	useEffect(() => {
 		axios
@@ -19,79 +27,136 @@ function App() {
 				// handle error
 				console.log(error);
 			});
+	}, [axios]);
+
+	useEffect(() => {
+		function start() {
+			gapi.client.init({
+				clientId: clientId,
+				scope: '',
+			});
+		}
+
+		gapi.load('client:auth2', start);
 	}, []);
 
+	function onSendClick(value, id) {
+		let result;
+		const newData = data.map((dataItem) => {
+			if (dataItem.id === id) {
+				result = [...dataItem.dialog, { msg: value, myMsg: true, dateMsg: Date.now(new Date()) }];
+				dataItem = { ...dataItem, dialog: result };
+				return dataItem;
+			} else {
+				return dataItem;
+			}
+		});
+		axios.put(`https://625bd2e1398f3bc782af098c.mockapi.io/messengerData/${id}`, {
+			dialog: result,
+		});
+		setData(newData);
+		setNewMsgInput('');
+		setTimeout(() => chuckAnswer(newData, id), 1000);
+	}
+
+	function chuckAnswer(data, id) {
+		axios.get('https://api.chucknorris.io/jokes/random').then((response) => {
+			let result;
+			const newData = data.map((dataItem) => {
+				if (dataItem.id === id) {
+					result = [
+						...dataItem.dialog,
+						{ msg: response.data.value, myMsg: false, dateMsg: Date.now(new Date()) },
+					];
+					dataItem = { ...dataItem, dialog: result };
+					return dataItem;
+				} else {
+					return dataItem;
+				}
+			});
+			axios.put(`https://625bd2e1398f3bc782af098c.mockapi.io/messengerData/${id}`, {
+				dialog: result,
+			});
+			setData(newData);
+		});
+		alert('New message');
+	}
+
+	const entryAction = (avatar, isLogged) => {
+		setAvatar(avatar);
+		setLogged(isLogged);
+	};
+
 	return (
-		<div className="wrapper">
-			<div className="control_panel">
-				<div className="control_panel__top_area">
-					<div className="control_panel__user_logo user_image user_image--accept">
-						<img src="/images/human.jpg" alt="avatar" />
+		<>
+			{!logged ? (
+				<Login isLogged={entryAction} />
+			) : (
+				<div className="wrapper">
+					<div className="control_panel">
+						<div className="control_panel__top_area">
+							<div className="control_panel__user_logo user_image user_image--accept">
+								<img src={avatar} alt="avatar" />
+							</div>
+							<label className="control_panel__search">
+								<input
+									value={search}
+									onChange={(e) => setSearch(e.target.value)}
+									type="search"
+									placeholder="Search or start new chat"
+								/>
+							</label>
+						</div>
+						<div className="control_panel__chats">
+							<h1 className="control_panel__title">Chats</h1>
+							<ul className="control_panel__chats_list">
+								{data
+									.sort(
+										(a, b) =>
+											b.dialog[b.dialog.length - 1].dateMsg - a.dialog[a.dialog.length - 1].dateMsg,
+									)
+									.filter((item) => item.userName.toLowerCase().includes(search.toLowerCase()))
+									.map((chat) => {
+										return (
+											<ChatItem
+												key={chat.id}
+												id={chat.id}
+												logo={chat.logo}
+												name={chat.userName}
+												msg={chat.dialog}
+											/>
+										);
+									})}
+							</ul>
+						</div>
 					</div>
-					<label className="control_panel__search">
-						<input
-							value={search}
-							onChange={(e) => setSearch(e.target.value)}
-							type="search"
-							placeholder="Search or start new chat"
-						/>
-					</label>
-				</div>
-				<div className="control_panel__chats">
-					<h1 className="control_panel__title">Chats</h1>
-					<ul className="control_panel__chats_list">
-						{data
-							.filter((item) => item.userName.toLowerCase().includes(search.toLowerCase()))
-							.map((chat) => {
+					<div className="message_panel">
+						<Routes>
+							{data.map((chat) => {
 								return (
-									<ChatItem
+									<Route
 										key={chat.id}
-										logo={chat.logo}
-										name={chat.userName}
-										msg={chat.userMsg}
-										date={chat.date}
+										path={`/${chat.id}`}
+										exact
+										element={
+											<ChattingArea
+												id={chat.id}
+												name={chat.userName}
+												dialog={chat.dialog}
+												onSendClick={onSendClick}
+												newMsgInput={newMsgInput}
+												setNewMsgInput={setNewMsgInput}
+											/>
+										}
 									/>
 								);
 							})}
-					</ul>
-				</div>
-			</div>
-			<div className="message_panel">
-				<div className="message_panel__chat_header">
-					<div className="message_panel__chat_logo user_image user_image--accept">
-						<img src="/images/human.jpg" alt="avatar" />
+						</Routes>
 					</div>
-					<h2 className="message_panel__chat_name">Josefina</h2>
+					<div className="bottom_line"></div>
 				</div>
-				<div className="message_panel__chatting_area">
-					<Msg />
-					<Msg />
-					<Msg />
-					<Msg />
-					<Msg />
-					<Msg />
-					<Msg />
-					<Msg />
-					<Msg />
-
-					<div className="message_panel__my_msg">
-						<div className="message_panel__msg_content">
-							<div className="message_panel__msg_text">Lorem ipsum dolor sit amet.</div>
-							<div className="message_panel__msg_date">4/22/17, 4:05 AM</div>
-						</div>
-					</div>
-				</div>
-				<div className="message_panel__input_area">
-					<label className="message_panel__input">
-						<input type="text" placeholder="Type your message" />
-						<button type="submit">
-							<img src="/images/send_icon.png" alt="send" />
-						</button>
-					</label>
-				</div>
-			</div>
-			<div className="bottom_line"></div>
-		</div>
+			)}
+		</>
 	);
 }
 
