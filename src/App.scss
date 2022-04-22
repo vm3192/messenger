@@ -188,6 +188,7 @@ body {
 
 .wrapper {
 	background: #f5f4f5;
+	border-radius: 5px;
 	height: calc(100vh - 30px);
 	overflow: hidden;
 	display: flex;
@@ -428,9 +429,9 @@ body {
 
 	.control_panel {
 		position: fixed;
-		top: 15px;
-		left: 15px;
-		right: 15px;
+		top: 0;
+		left: 0;
+		right: 0;
 		background: #faf9fa;
 		z-index: 5;
 	}
@@ -451,16 +452,31 @@ body {
 	}
 	.message_panel {
 		position: fixed;
-		top: 241px;
-		left: 15px;
-		right: 15px;
-		bottom: 15px;
+		top: 166px;
+		left: 0;
+		right: 0;
+		bottom: 0;
 	}
 	.wrapper {
+		height: 100vh;
+		border-radius: 0;
 		position: fixed;
-		top: 15px;
-		left: 15px;
-		right: 15px;
-		bottom: 15px;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+	}
+	.control_panel__top_area {
+		display: flex;
+	}
+	.control_panel__user_logo {
+		margin-bottom: 0;
+		margin-right: 25px;
+	}
+	body {
+		background: #f5f4f5;
+	}
+	.control_panel {
+		border-right: none;
 	}
 }
