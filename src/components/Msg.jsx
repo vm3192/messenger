@@ -20,7 +20,7 @@ const Msg = (props) => {
 			) : (
 				<div className="message_panel__other_msg">
 					<div className="message_panel__other_image user_image">
-						<img src="/images/human.jpg" alt="avatar" />
+						<img src={props.logo} alt="avatar" />
 					</div>
 					<div className="message_panel__msg_content">
 						<div className="message_panel__msg_text">{props.message}</div>
